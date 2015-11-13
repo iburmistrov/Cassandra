@@ -15,34 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.cassandra.metrics;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Reservoir;
 
 /**
- * Adds ability to reset a histogram
+ * An interface of Reservoir with clean capability
  */
-public class ClearableHistogram extends Histogram
+public interface ClearableReservoir extends Reservoir
 {
-    private final ClearableReservoir reservoirRef;
-
-    /**
-     * Creates a new {@link com.codahale.metrics.Histogram} with the given reservoir.
-     *
-     * @param reservoir the reservoir to create a histogram from
-     */
-    public ClearableHistogram(ClearableReservoir reservoir)
-    {
-        super(reservoir);
-
-        this.reservoirRef = reservoir;
-    }
-
     @VisibleForTesting
-    public void clear()
-    {
-        reservoirRef.clear();
-    }
+    void clear();
 }

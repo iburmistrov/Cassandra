@@ -306,7 +306,7 @@ public class ColumnFamilyMetrics
                 });
             }
         });
-        sstablesPerReadHistogram = createColumnFamilyHistogram("SSTablesPerReadHistogram", cfs.keyspace.metric.sstablesPerReadHistogram);
+        sstablesPerReadHistogram = createExponentiallyDecayingColumnFamilyHistogram("SSTablesPerReadHistogram", cfs.keyspace.metric.sstablesPerReadHistogram);
         compressionRatio = createColumnFamilyGauge("CompressionRatio", new Gauge<Double>()
         {
             public Double getValue()
@@ -715,6 +715,17 @@ public class ColumnFamilyMetrics
         Histogram cfHistogram = Metrics.histogram(factory.createMetricName(name));
         register(name, cfHistogram);
         return new ColumnFamilyHistogram(cfHistogram, keyspaceHistogram, Metrics.histogram(globalNameFactory.createMetricName(name)));
+    }
+
+    /**
+     * Create a exponentially decaying, histogram-like interface that will register both a CF, keyspace and global level
+     * histogram and forward any updates to both
+     */
+    protected ColumnFamilyHistogram createExponentiallyDecayingColumnFamilyHistogram(String name, Histogram keyspaceHistogram)
+    {
+        Histogram cfHistogram = Metrics.exponentiallyDecayingHistogram(factory.createMetricName(name));
+        register(name, cfHistogram);
+        return new ColumnFamilyHistogram(cfHistogram, keyspaceHistogram, Metrics.exponentiallyDecayingHistogram(globalNameFactory.createMetricName(name)));
     }
 
     /**
