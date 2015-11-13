@@ -87,6 +87,21 @@ public class CassandraMetricsRegistry extends MetricRegistry
         return histogram;
     }
 
+    public Histogram exponentiallyDecayingHistogram(MetricName name)
+    {
+        Histogram histogram = register(name, new ClearableHistogram(new ExponentiallyDecayingClearableReservoir()));
+        registerMBean(histogram, name.getMBeanName());
+
+        return histogram;
+    }
+
+    public Histogram exponentiallyDecayingHistogram(MetricName name, MetricName alias)
+    {
+        Histogram histogram = exponentiallyDecayingHistogram(name);
+        registerAlias(name, alias);
+        return histogram;
+    }
+
     public Timer timer(MetricName name)
     {
         Timer timer = register(name, new Timer(new EstimatedHistogramReservoir()));

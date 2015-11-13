@@ -224,7 +224,7 @@ public class KeyspaceMetrics
         writeLatency = new LatencyMetrics(factory, "Write");
         rangeLatency = new LatencyMetrics(factory, "Range");
         // create histograms for TableMetrics to replicate updates to
-        sstablesPerReadHistogram = Metrics.histogram(factory.createMetricName("SSTablesPerReadHistogram"));
+        sstablesPerReadHistogram = Metrics.exponentiallyDecayingHistogram(factory.createMetricName("SSTablesPerReadHistogram"));
         tombstoneScannedHistogram = Metrics.histogram(factory.createMetricName("TombstoneScannedHistogram"));
         liveScannedHistogram = Metrics.histogram(factory.createMetricName("LiveScannedHistogram"));
         colUpdateTimeDeltaHistogram = Metrics.histogram(factory.createMetricName("ColUpdateTimeDeltaHistogram"));

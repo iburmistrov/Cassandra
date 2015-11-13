@@ -15,34 +15,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.cassandra.metrics;
 
-import com.google.common.annotations.VisibleForTesting;
-
-import com.codahale.metrics.Histogram;
+import com.codahale.metrics.ExponentiallyDecayingReservoir;
+import com.codahale.metrics.Reservoir;
+import com.codahale.metrics.Snapshot;
 
 /**
- * Adds ability to reset a histogram
+ * The wrapper on ExponentiallyDecayingReservoir with clear capability
  */
-public class ClearableHistogram extends Histogram
+public class ExponentiallyDecayingClearableReservoir implements ClearableReservoir
 {
-    private final ClearableReservoir reservoirRef;
+    private Reservoir reservoirRef;
 
-    /**
-     * Creates a new {@link com.codahale.metrics.Histogram} with the given reservoir.
-     *
-     * @param reservoir the reservoir to create a histogram from
-     */
-    public ClearableHistogram(ClearableReservoir reservoir)
+    public ExponentiallyDecayingClearableReservoir()
     {
-        super(reservoir);
-
-        this.reservoirRef = reservoir;
+        init();
     }
 
-    @VisibleForTesting
     public void clear()
     {
-        reservoirRef.clear();
+        init();
+    }
+
+    public int size()
+    {
+        return reservoirRef.size();
+    }
+
+    public void update(long l)
+    {
+        reservoirRef.update(l);
+    }
+
+    public Snapshot getSnapshot()
+    {
+        return reservoirRef.getSnapshot();
+    }
+
+    private void init()
+    {
+        reservoirRef = new ExponentiallyDecayingReservoir();
     }
 }

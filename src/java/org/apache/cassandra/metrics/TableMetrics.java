@@ -318,7 +318,7 @@ public class TableMetrics
                                                                  });
             }
         });
-        sstablesPerReadHistogram = createTableHistogram("SSTablesPerReadHistogram", cfs.keyspace.metric.sstablesPerReadHistogram);
+        sstablesPerReadHistogram = createExponentiallyDecayingTableHistogram("SSTablesPerReadHistogram", cfs.keyspace.metric.sstablesPerReadHistogram);
         compressionRatio = createTableGauge("CompressionRatio", new Gauge<Double>()
         {
             public Double getValue()
@@ -764,6 +764,25 @@ public class TableMetrics
                                   keyspaceHistogram,
                                   Metrics.histogram(globalFactory.createMetricName(name),
                                                     globalAliasFactory.createMetricName(alias)));
+    }
+
+    /**
+     * Create a exponentially decaying, histogram-like interface that will register both a CF, keyspace and global level
+     * histogram and forward any updates to both
+     */
+    protected TableHistogram createExponentiallyDecayingTableHistogram(String name, Histogram keyspaceHistogram)
+    {
+        return createExponentiallyDecayingTableHistogram(name, name, keyspaceHistogram);
+    }
+
+    protected TableHistogram createExponentiallyDecayingTableHistogram(String name, String alias, Histogram keyspaceHistogram)
+    {
+        Histogram cfHistogram = Metrics.exponentiallyDecayingHistogram(factory.createMetricName(name));
+        register(name, alias, cfHistogram);
+        return new TableHistogram(cfHistogram,
+                                  keyspaceHistogram,
+                                  Metrics.exponentiallyDecayingHistogram(globalFactory.createMetricName(name),
+                                                                         globalAliasFactory.createMetricName(alias)));
     }
 
     protected TableTimer createTableTimer(String name, Timer keyspaceTimer)

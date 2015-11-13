@@ -29,7 +29,7 @@ import org.apache.cassandra.utils.EstimatedHistogram;
  *
  * Default buckets allows nanosecond timings.
  */
-public class EstimatedHistogramReservoir implements Reservoir
+public class EstimatedHistogramReservoir implements ClearableReservoir
 {
     EstimatedHistogram histogram;
 
